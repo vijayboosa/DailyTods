@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Todo</title>
+    <style>
+        body {
+            height: 100vh;
+            margin: 0;
+        }
+
+        .main {
+            height: 100%;
+            background-color: rgb(177, 208, 167);
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .inner-main {
+            background-color: aquamarine;
+            width: 50%;
+            height: 60%;
+            margin: auto;
+            box-shadow: 0px 4px 13px -1px rgba(0, 0, 0, 0.8);
+            -webkit-box-shadow: 0px 4px 13px -1px rgba(0, 0, 0, 0.8);
+            -moz-box-shadow: 0px 4px 13px -1px rgba(0, 0, 0, 0.8);
+        }
+
+        .todoHeading>h1 {
+            font-family: Cutive Mono, monospace;
+            font-size: 48px;
+            font-weight: 100;
+            color: rgba(0, 0, 0, 1);
+            line-height: 2em;
+        }
+
+        .input-alltodo-container {
+            width: 60%;
+            margin: auto;
+        }
+
+        .input-container {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .input-container>img {
+            margin-right: 5px;
+        }
+
+        .input-container>input[type="text"] {
+            height: 40px;
+            width: 100%;
+            text-align: justify;
+            font-size: 20px;
+            border: none;
+            outline: none;
+        }
+
+        #allTodosContainer {
+            margin: auto;
+        }
+
+        #allTodosContainer>span {
+            background-color: yellowgreen;
+            display: block;
+            padding: 20px 0;
+            text-align: start;
+            margin: 3px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="inner-main">
+            <div class="todoHeading">
+                <h1>todos</h1>
+            </div>
+
+            <div class="input-alltodo-container">
+                <div class="input-container">
+                    <img src="darrow.png" alt="down-arrow" height="22px" width="22px">
+                    <input type="text" placeholder="Write A New Todo">
+                </div>
+
+                <div id="allTodosContainer">
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let todoInputTag = document.querySelector("input")
+        let allTodoContainer = document.getElementById("allTodosContainer")
+
+        function deleteTodo(e) {
+            let parenetId = e.parentNode.id
+            // get data from localstroage
+            let getAllTodos = JSON.parse(localStorage.getItem("allTodos")) // [{}]
+
+            let allTodos = getAllTodos.filter(e => {
+                // e = {id: 225232323, completed: false, todoName: "buy eggs"}
+                if (e.id.toString() === parenetId) {
+                    return false
+                }
+                return true
+            })
+
+            // add the updated todo array to localstorage
+            localStorage.setItem("allTodos", JSON.stringify(allTodos))
+
+            e.parentNode.remove();
+        }
+
+        todoInputTag.addEventListener("keypress", (e) => {
+            if (e.keyCode === 13) {
+
+                let newSpan = document.createElement("span")
+                let id = Math.floor(Math.random() * 10000000000)
+                newSpan.id = id
+
+                newSpan.innerHTML = `
+                <input type="checkbox"> 
+                <span>${todoInputTag.value}</span>
+                <button onclick="deleteTodo(this)"> Delete </button>
+                `
+                allTodoContainer.appendChild(newSpan)
+                newSpan.children[0].addEventListener("change", (e) => {
+                    if (e.target.checked) {
+                        e.target.parentNode.children[1].style = "text-decoration: line-through;"
+                    } else {
+                        e.target.parentNode.children[1].style = "text-decoration: none;"
+                    }
+                })
+
+                // retrieve from localstorage and parse the data
+                let getAllTodos = JSON.parse(localStorage.getItem("allTodos"))
+                getAllTodos.push({ id: id, completed: false, todoName: todoInputTag.value })
+
+                // update new todo array to localstorage
+                localStorage.setItem("allTodos", JSON.stringify(getAllTodos))
+
+                todoInputTag.value = ""
+            }
+        })
+
+
+        window.onload = () => {
+            let allTodos = localStorage.getItem("allTodos")
+            if (allTodos === null) {
+                console.log("i am here");
+                localStorage.setItem("allTodos", JSON.stringify([]))
+            } else {
+                let todos = JSON.parse(allTodos)
+                todos.forEach(e => {
+                    let newSpan = document.createElement("span")
+                    newSpan.id = e.id
+                    newSpan.innerHTML = `
+                    <input type="checkbox"> 
+                    <span>${e.todoName}</span>
+                    <button onclick="deleteTodo(this)"> Delete </button>
+                    `
+                    
+                    allTodoContainer.appendChild(newSpan)
+                    
+                    newSpan.children[0].addEventListener("change", (e) => {
+                        if (e.target.checked) {
+                            e.target.parentNode.children[1].style = "text-decoration: line-through;"
+                        } else {
+                            e.target.parentNode.children[1].style = "text-decoration: none;"
+                        }
+                    })
+
+
+                })
+            }
+        }
+    </script>
+</body>
+
+</html>
